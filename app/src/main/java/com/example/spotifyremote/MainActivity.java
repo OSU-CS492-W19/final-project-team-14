@@ -2,6 +2,7 @@ package com.example.spotifyremote;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.example.spotifyremote.data.SpotifyViewModel;
+import com.example.spotifyremote.utils.SpotifyUtils;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         // grab ui
         mMainTV = findViewById(R.id.tv_main);
 
+        // authenticate if we don't have an access token
         if (mSpotifyViewModel.getAuthToken() == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
             builder.setScopes(new String[]{"streaming"});
@@ -72,6 +75,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected() {
-        mMainTV.setText(mSpotifyViewModel.getAuthToken());
+        mSpotifyViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl()).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                mMainTV.setText(s);
+            }
+        });
     }
+
 }
