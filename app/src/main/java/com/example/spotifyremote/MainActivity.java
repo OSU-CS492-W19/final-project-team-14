@@ -2,12 +2,14 @@ package com.example.spotifyremote;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.example.spotifyremote.data.SpotifyViewModel;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -19,21 +21,26 @@ public class MainActivity extends AppCompatActivity {
     private static final String REDIRECT_URI = "spotifyremote://spotify/callback";
     private static final int REQUEST_CODE = 1423;
 
-    private String mAccessToken;
     private TextView mMainTV;
+    private SpotifyViewModel mSpotifyViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mSpotifyViewModel = ViewModelProviders.of(this).get(SpotifyViewModel.class);
+
         // grab ui
         mMainTV = findViewById(R.id.tv_main);
 
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"streaming"});
-        AuthenticationRequest request = builder.build();
-        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        if (mSpotifyViewModel.getAuthToken() == null) {
+            AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+            builder.setScopes(new String[]{"streaming"});
+            AuthenticationRequest request = builder.build();
+            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        }
+        else connected();
     }
 
     @Override
@@ -46,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
-                    mAccessToken = response.getAccessToken();
-                    Log.d(TAG, "successfully received access token: " + mAccessToken);
+                    mSpotifyViewModel.setAuthToken(response.getAccessToken());
+                    Log.d(TAG, "successfully received access token: " + mSpotifyViewModel.getAuthToken());
                     connected();
                     break;
 
@@ -65,6 +72,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected() {
-        mMainTV.setText(mAccessToken);
+        mMainTV.setText(mSpotifyViewModel.getAuthToken());
     }
 }
