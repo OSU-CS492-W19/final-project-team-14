@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.spotifyremote.data.SpotifyViewModel;
+import com.example.spotifyremote.data.AlbumViewModel;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private SpotifyViewModel mSpotifyViewModel;
+    private AlbumViewModel mAlbumViewModel;
     private AlbumAdapter mAlbumAdapter;
 
     private Toast mToast;
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mSpotifyViewModel = ViewModelProviders.of(this).get(SpotifyViewModel.class);
+        mAlbumViewModel = ViewModelProviders.of(this).get(AlbumViewModel.class);
         mAlbumAdapter = new AlbumAdapter(this);
 
         // grab ui
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         mAlbumsRV.setHasFixedSize(true);
 
         // authenticate if we don't have an access token
-        if (mSpotifyViewModel.getAuthToken() == null) {
+        if (mAlbumViewModel.getAuthToken() == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SpotifyUtils.CLIENT_ID, AuthenticationResponse.Type.TOKEN, SpotifyUtils.REDIRECT_URI);
             builder.setScopes(SpotifyUtils.SPOTIFY_PERMISSIONS);
             AuthenticationRequest request = builder.build();
@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                 // Response was successful and contains auth token
                 case TOKEN:
                     // Handle successful response
-                    mSpotifyViewModel.setAuthToken(response.getAccessToken());
-                    Log.d(TAG, "successfully received access token: " + mSpotifyViewModel.getAuthToken());
+                    mAlbumViewModel.setAuthToken(response.getAccessToken());
+                    Log.d(TAG, "successfully received access token: " + mAlbumViewModel.getAuthToken());
                     connected();
                     break;
 
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
 
     private void connected() {
         mLoadingIndicatorPB.setVisibility(View.VISIBLE);
-        mSpotifyViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl()).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
+        mAlbumViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl()).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
                 mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
         if (!deviceID.equals(DEFAULT)) {
             Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
-            new PlayContextOnDeviceTask().execute(album.uri, deviceID, mSpotifyViewModel.getAuthToken());
+            new PlayContextOnDeviceTask().execute(album.uri, deviceID, mAlbumViewModel.getAuthToken());
         }
     }
 
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                 return true;
             case R.id.nav_devices:
                 Intent intent = new Intent(this, DevicesActivity.class);
-                intent.putExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA, mSpotifyViewModel.getAuthToken());
+                intent.putExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA, mAlbumViewModel.getAuthToken());
                 startActivity(intent);
                 return true;
             default:

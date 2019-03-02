@@ -12,8 +12,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SpotifyViewModel extends ViewModel {
-    private static final String TAG = SpotifyViewModel.class.getSimpleName();
+public class AlbumViewModel extends ViewModel {
+    private static final String TAG = AlbumViewModel.class.getSimpleName();
 
     private MutableLiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> albums = null;
     private String mAuthToken = null;
