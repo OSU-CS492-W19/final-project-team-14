@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.spotifyremote.data.SpotifyViewModel;
@@ -26,8 +28,10 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
     private SpotifyViewModel mSpotifyViewModel;
     private AlbumAdapter mAlbumAdapter;
 
-
     private RecyclerView mAlbumsRV;
+    private ProgressBar mLoadingIndicatorPB;
+    private TextView mLoadingErrorTV;
+    private TextView mAuthErrorTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         mAlbumAdapter = new AlbumAdapter(this);
 
         // grab ui
+        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+        mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
+        mAuthErrorTV = findViewById(R.id.tv_auth_error_message);
         mAlbumsRV = findViewById(R.id.rv_albums);
         mAlbumsRV.setAdapter(mAlbumAdapter);
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
@@ -73,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                 case ERROR:
                     Log.d(TAG, "failed to authenticate: " + response.getError());
                     // Handle error response
+                    mAuthErrorTV.setVisibility(View.VISIBLE);
                     break;
 
                 // Most likely auth flow was cancelled
@@ -83,11 +91,19 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
     }
 
     private void connected() {
+        mLoadingIndicatorPB.setVisibility(View.VISIBLE);
         mSpotifyViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl()).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
+                mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                 if (albums != null) {
+                    mLoadingErrorTV.setVisibility(View.INVISIBLE);
+                    mAuthErrorTV.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.VISIBLE);
                     mAlbumAdapter.updateAlbums(albums);
+                } else {
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorTV.setVisibility(View.VISIBLE);
                 }
             }
         });

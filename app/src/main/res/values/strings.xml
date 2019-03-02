@@ -2,4 +2,6 @@
     <string name="app_name">SpotifyRemote</string>
 
     <string name="new_releases_title">New Releases</string>
+    <string name="auth_error_message">Unable to authenticate with Spotify. Are you connected to the internet?</string>
+    <string name="loading_error_message">Unable to load. Please check your internet connection.</string>
 </resources>
