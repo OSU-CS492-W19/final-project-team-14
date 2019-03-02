@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
@@ -35,9 +36,9 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
     private DevicesAdapter mDevicesAdapter;
 
     private DrawerLayout mDrawerLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mDevicesRV;
 
-    private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorTV;
     private LinearLayout mNoDevicesLL;
 
@@ -57,11 +58,17 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         navigationView.setNavigationItemSelectedListener(this);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadDevices(true);
+            }
+        });
 
         mDevicesViewModel = ViewModelProviders.of(this).get(DevicesViewModel.class);
         mDevicesAdapter = new DevicesAdapter(this);
 
-        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
         mNoDevicesLL = findViewById(R.id.ll_no_devices);
 
@@ -74,16 +81,18 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         if (intent != null && intent.hasExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA)) {
             String authToken = (String) intent.getSerializableExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA);
             mDevicesViewModel.setAuthToken(authToken);
-            loadDevices();
+            loadDevices(false);
         }
     }
 
-    private void loadDevices() {
-        mLoadingIndicatorPB.setVisibility(View.VISIBLE);
-        mDevicesViewModel.getDevices(SpotifyUtils.getDeviceListURL()).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
+    private void loadDevices(Boolean forceLoad) {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        mDevicesViewModel.getDevices(SpotifyUtils.getDeviceListURL(), forceLoad).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyDevice> devices) {
-                mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                mSwipeRefreshLayout.setRefreshing(false);
+
                 if (devices != null) {
                     mLoadingErrorTV.setVisibility(View.INVISIBLE);
                     if (devices.size() > 0) {
@@ -91,6 +100,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
                         mDevicesRV.setVisibility(View.VISIBLE);
                         mDevicesAdapter.updateDevices(devices);
                     } else {
+                        mDevicesRV.setVisibility(View.INVISIBLE);
                         mNoDevicesLL.setVisibility(View.VISIBLE);
                     }
                 } else {

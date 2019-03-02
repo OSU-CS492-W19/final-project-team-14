@@ -18,8 +18,8 @@ public class AlbumViewModel extends ViewModel {
     private MutableLiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> albums = null;
     private String mAuthToken = null;
 
-    public LiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> getNewReleases(String url) {
-        if (albums == null) {
+    public LiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> getNewReleases(String url, Boolean forceLoad) {
+        if (albums == null || forceLoad) {
             albums = new MutableLiveData<>();
             loadNewReleases(url);
         } else Log.d(TAG, "returning cached releases");

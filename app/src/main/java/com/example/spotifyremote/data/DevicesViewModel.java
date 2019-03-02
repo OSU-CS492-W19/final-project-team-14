@@ -18,8 +18,8 @@ public class DevicesViewModel extends ViewModel {
     private MutableLiveData<ArrayList<SpotifyUtils.SpotifyDevice>> devices = null;
     private String mAuthToken = null;
 
-    public LiveData<ArrayList<SpotifyUtils.SpotifyDevice>> getDevices(String url) {
-        if (devices == null) {
+    public LiveData<ArrayList<SpotifyUtils.SpotifyDevice>> getDevices(String url, Boolean forceLoad) {
+        if (devices == null || forceLoad) {
             devices = new MutableLiveData<>();
             loadDevices(url);
         } else Log.d(TAG, "returning cached devices");

@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
     }
 
     private DrawerLayout mDrawerLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mAlbumsRV;
-    private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorTV;
     private TextView mAuthErrorTV;
 
@@ -73,7 +74,15 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
 
         // grab ui
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+
+        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadAlbums(true);
+            }
+        });
+
         mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
         mAuthErrorTV = findViewById(R.id.tv_auth_error_message);
 
@@ -89,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
             AuthenticationRequest request = builder.build();
             AuthenticationClient.openLoginActivity(this, SpotifyUtils.REQUEST_CODE, request);
         }
-        else connected();
+        else loadAlbums(false);
     }
 
     @Override
@@ -104,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                     // Handle successful response
                     mAlbumViewModel.setAuthToken(response.getAccessToken());
                     Log.d(TAG, "successfully received access token: " + mAlbumViewModel.getAuthToken());
-                    connected();
+                    loadAlbums(false);
                     break;
 
                 // Auth flow returned an error
@@ -121,12 +130,12 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         }
     }
 
-    private void connected() {
-        mLoadingIndicatorPB.setVisibility(View.VISIBLE);
-        mAlbumViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl()).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
+    private void loadAlbums(Boolean forceLoad) {
+        mSwipeRefreshLayout.setRefreshing(true);
+        mAlbumViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl(), forceLoad).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
-                mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                mSwipeRefreshLayout.setRefreshing(false);
                 if (albums != null) {
                     mLoadingErrorTV.setVisibility(View.INVISIBLE);
                     mAuthErrorTV.setVisibility(View.INVISIBLE);
