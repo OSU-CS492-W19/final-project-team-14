@@ -103,7 +103,7 @@ public class SpotifyUtils {
         else return null;
     }
 
-    public static void playContextURIOnDevice(String contextURI, String deviceID, String token) {
+    public static String playContextURIOnDevice(String contextURI, String deviceID, String token) {
         String uri = Uri.parse(SPOTIFY_PLAYBACK_BASE_URL).buildUpon()
                 .appendQueryParameter(SPOTIFY_PLAYBACK_QUERY_PARAM, deviceID)
                 .build()
@@ -117,23 +117,27 @@ public class SpotifyUtils {
         try {
             String res = NetworkUtils.doHTTPPut(uri, header, body);
             Log.d(TAG, "PUT res:\n" + res);
+            return res;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
-    public static class PlayContextOnDeviceTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            String uri = params[0];
-            String id = params[1];
-            String token = params[2];
-            SpotifyUtils.playContextURIOnDevice(uri, id, token);
-            return null;
-        }
+    /* PUT RESPONSES */
+    public static class SpotifyResponse {
+        public SpotifyError error;
+    }
 
-        @Override
-        protected void onPostExecute(String s) {
-        }
+    public static class SpotifyError {
+        public int status;
+        public String message;
+        public String reason;
+    }
+
+    public static SpotifyResponse parseResponseJSON(String json) {
+        Gson gson = new Gson();
+        SpotifyResponse results = gson.fromJson(json, SpotifyResponse.class);
+        return results;
     }
 }

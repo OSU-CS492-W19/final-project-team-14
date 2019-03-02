@@ -30,7 +30,6 @@ import java.util.ArrayList;
 public class DevicesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DevicesAdapter.OnDeviceClickListener {
     private static final String TAG = DevicesActivity.class.getSimpleName();
 
-
     private DevicesViewModel mDevicesViewModel;
     private DevicesAdapter mDevicesAdapter;
 

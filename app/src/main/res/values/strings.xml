@@ -11,4 +11,7 @@
     <string name="pref_device_id_key" translatable="false">pref_device_id_key</string>
     <string name="pref_device_id_default">No device chosen</string>
     <string name="pref_device_title">Playback device</string>
+
+    <string name="playback_successful">Played to device</string>
+    <string name="playback_error_premium_required">Premium required!</string>
 </resources>

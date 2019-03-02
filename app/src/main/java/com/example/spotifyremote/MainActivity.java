@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.spotifyremote.data.SpotifyViewModel;
 import com.example.spotifyremote.utils.SpotifyUtils;
@@ -30,7 +31,6 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
@@ -38,6 +38,14 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
 
     private SpotifyViewModel mSpotifyViewModel;
     private AlbumAdapter mAlbumAdapter;
+
+    private Toast mToast;
+
+    private void toast(String msg) {
+        if (mToast != null) mToast.cancel();
+        mToast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+        mToast.show();
+    }
 
     private DrawerLayout mDrawerLayout;
     private RecyclerView mAlbumsRV;
@@ -139,7 +147,30 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
         if (!deviceID.equals(DEFAULT)) {
             Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
-            new SpotifyUtils.PlayContextOnDeviceTask().execute(album.uri, deviceID, mSpotifyViewModel.getAuthToken());
+            new PlayContextOnDeviceTask().execute(album.uri, deviceID, mSpotifyViewModel.getAuthToken());
+        }
+    }
+
+    class PlayContextOnDeviceTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String uri = params[0];
+            String id = params[1];
+            String token = params[2];
+            String res = SpotifyUtils.playContextURIOnDevice(uri, id, token);
+            return res;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if (s != null) {
+                SpotifyUtils.SpotifyResponse response = SpotifyUtils.parseResponseJSON(s);
+                if (response != null && response.error != null) {
+                    if (response.error.status == 403) toast(getString(R.string.playback_error_premium_required));
+                }
+            } else {
+                toast(getString(R.string.playback_successful));
+            }
         }
     }
 
