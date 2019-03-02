@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
     private DrawerLayout mDrawerLayout;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mAlbumsRV;
-    private TextView mLoadingErrorTV;
+    private LinearLayout mLoadingErrorLL;
     private TextView mAuthErrorTV;
 
     @Override
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
             }
         });
 
-        mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
+        mLoadingErrorLL = findViewById(R.id.ll_loading_error);
         mAuthErrorTV = findViewById(R.id.tv_auth_error_message);
 
         mAlbumsRV = findViewById(R.id.rv_albums);
@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                 case ERROR:
                     Log.d(TAG, "failed to authenticate: " + response.getError());
                     // Handle error response
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
                     mAuthErrorTV.setVisibility(View.VISIBLE);
                     break;
 
@@ -137,13 +138,13 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
             public void onChanged(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
                 mSwipeRefreshLayout.setRefreshing(false);
                 if (albums != null) {
-                    mLoadingErrorTV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
                     mAuthErrorTV.setVisibility(View.INVISIBLE);
                     mAlbumsRV.setVisibility(View.VISIBLE);
                     mAlbumAdapter.updateAlbums(albums);
                 } else {
                     mAlbumsRV.setVisibility(View.INVISIBLE);
-                    mLoadingErrorTV.setVisibility(View.VISIBLE);
+                    mLoadingErrorLL.setVisibility(View.VISIBLE);
                 }
             }
         });

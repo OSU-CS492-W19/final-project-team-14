@@ -51,14 +51,7 @@
                 android:visibility="invisible"
                 android:text="@string/auth_error_message" />
 
-            <TextView
-                android:id="@+id/tv_loading_error_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:padding="16dp"
-                android:visibility="invisible"
-                android:text="@string/loading_error_message" />
+            <include layout="@layout/loading_error"/>
         </FrameLayout>
     </LinearLayout>
 

@@ -20,8 +20,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.spotifyremote.data.DevicesViewModel;
 import com.example.spotifyremote.utils.SpotifyUtils;
@@ -39,7 +37,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mDevicesRV;
 
-    private TextView mLoadingErrorTV;
+    private LinearLayout mLoadingErrorLL;
     private LinearLayout mNoDevicesLL;
 
     @Override
@@ -69,7 +67,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         mDevicesViewModel = ViewModelProviders.of(this).get(DevicesViewModel.class);
         mDevicesAdapter = new DevicesAdapter(this);
 
-        mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
+        mLoadingErrorLL = findViewById(R.id.ll_loading_error);
         mNoDevicesLL = findViewById(R.id.ll_no_devices);
 
         mDevicesRV = findViewById(R.id.rv_devices);
@@ -94,7 +92,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
                 mSwipeRefreshLayout.setRefreshing(false);
 
                 if (devices != null) {
-                    mLoadingErrorTV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
                     if (devices.size() > 0) {
                         mNoDevicesLL.setVisibility(View.INVISIBLE);
                         mDevicesRV.setVisibility(View.VISIBLE);
@@ -106,7 +104,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
                 } else {
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
-                    mLoadingErrorTV.setVisibility(View.VISIBLE);
+                    mLoadingErrorLL.setVisibility(View.VISIBLE);
                 }
             }
         });
