@@ -17,6 +17,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.spotifyremote.data.DevicesViewModel;
 import com.example.spotifyremote.utils.SpotifyUtils;
@@ -33,6 +36,9 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
 
     private DrawerLayout mDrawerLayout;
     private RecyclerView mDevicesRV;
+
+    private ProgressBar mLoadingIndicatorPB;
+    private TextView mLoadingErrorTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +60,9 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         mDevicesViewModel = ViewModelProviders.of(this).get(DevicesViewModel.class);
         mDevicesAdapter = new DevicesAdapter(this);
 
+        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+        mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
+
         mDevicesRV = findViewById(R.id.rv_devices);
         mDevicesRV.setAdapter(mDevicesAdapter);
         mDevicesRV.setLayoutManager(new LinearLayoutManager(this));
@@ -68,11 +77,18 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
     }
 
     private void loadDevices() {
+        mLoadingIndicatorPB.setVisibility(View.VISIBLE);
         mDevicesViewModel.getDevices(SpotifyUtils.getDeviceListURL()).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyDevice> devices) {
+                mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                 if (devices != null) {
+                    mLoadingErrorTV.setVisibility(View.INVISIBLE);
+                    mDevicesRV.setVisibility(View.VISIBLE);
                     mDevicesAdapter.updateDevices(devices);
+                } else {
+                    mDevicesRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorTV.setVisibility(View.VISIBLE);
                 }
             }
         });
