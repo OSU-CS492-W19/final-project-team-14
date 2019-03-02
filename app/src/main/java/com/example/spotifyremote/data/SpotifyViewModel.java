@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.spotifyremote.utils.SpotifyUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -15,15 +16,15 @@ public class SpotifyViewModel extends ViewModel {
     private static final String TAG = SpotifyViewModel.class.getSimpleName();
 
     private String mAuthToken = null;
-    private MutableLiveData<String> json = null;
+    private MutableLiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> albums = null;
 
-    public LiveData<String> getNewReleases(String url) {
-        if (json == null) {
-            json = new MutableLiveData<>();
+    public LiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> getNewReleases(String url) {
+        if (albums == null) {
+            albums = new MutableLiveData<>();
             loadNewReleases(url);
         }
         else Log.d(TAG, "returning cached releases");
-        return json;
+        return albums;
     }
 
     public void loadNewReleases(String url) {
@@ -44,7 +45,7 @@ public class SpotifyViewModel extends ViewModel {
 
             @Override
             protected void onPostExecute(String s) {
-                json.setValue(s);
+                albums.setValue(SpotifyUtils.parseNewReleasesJSON(s));
             }
         }.execute(url);
     }

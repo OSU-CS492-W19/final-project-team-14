@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SpotifyRemote</string>
+
+    <string name="new_releases_title">New Releases</string>
 </resources>
