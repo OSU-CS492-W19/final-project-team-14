@@ -16,28 +16,22 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground">
-
-        <ImageView
-            android:id="@+id/iv_album_art"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
+        android:background="?attr/selectableItemBackground"
+        android:padding="10dp">
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tv_album_title"
+                android:id="@+id/tv_device_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="25sp"
-                android:textColor="#ffffff"/>
+                android:textSize="25sp"/>
 
             <TextView
-                android:id="@+id/tv_album_artist"
+                android:id="@+id/tv_device_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
@@ -45,4 +39,3 @@
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
-

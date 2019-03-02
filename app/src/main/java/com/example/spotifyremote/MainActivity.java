@@ -1,33 +1,43 @@
 package com.example.spotifyremote;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.spotifyremote.data.SpotifyViewModel;
 import com.example.spotifyremote.utils.SpotifyUtils;
+import com.google.android.material.navigation.NavigationView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAlbumClickListener {
+public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private SpotifyViewModel mSpotifyViewModel;
     private AlbumAdapter mAlbumAdapter;
 
+    private DrawerLayout mDrawerLayout;
     private RecyclerView mAlbumsRV;
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorTV;
@@ -37,15 +47,26 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setTitle(getString(R.string.new_releases_title));
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        actionbar.setTitle(getString(R.string.new_releases_title));
+
+        NavigationView navigationView = findViewById(R.id.nv_nav_drawer);
+        navigationView.setNavigationItemSelectedListener(this);
 
         mSpotifyViewModel = ViewModelProviders.of(this).get(SpotifyViewModel.class);
         mAlbumAdapter = new AlbumAdapter(this);
 
         // grab ui
+        mDrawerLayout = findViewById(R.id.drawer_layout);
         mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
         mAuthErrorTV = findViewById(R.id.tv_auth_error_message);
+
         mAlbumsRV = findViewById(R.id.rv_albums);
         mAlbumsRV.setAdapter(mAlbumAdapter);
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
@@ -54,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         // authenticate if we don't have an access token
         if (mSpotifyViewModel.getAuthToken() == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SpotifyUtils.CLIENT_ID, AuthenticationResponse.Type.TOKEN, SpotifyUtils.REDIRECT_URI);
-            builder.setScopes(new String[]{"streaming"});
+            builder.setScopes(SpotifyUtils.SPOTIFY_PERMISSIONS);
             AuthenticationRequest request = builder.build();
             AuthenticationClient.openLoginActivity(this, SpotifyUtils.REQUEST_CODE, request);
         }
@@ -111,6 +132,37 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
 
     @Override
     public void onAlbumClick(SpotifyUtils.SpotifyAlbum album) {
+        final String DEFAULT = getString(R.string.pref_device_id_default);
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
+        String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
+        if (!deviceID.equals(DEFAULT)) {
+            Log.d(TAG, "playing to device: " + deviceID);
+        }
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        mDrawerLayout.closeDrawers();
+        switch (menuItem.getItemId()) {
+            case R.id.nav_new_releases:
+                return true;
+            case R.id.nav_devices:
+                Intent intent = new Intent(this, DevicesActivity.class);
+                intent.putExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA, mSpotifyViewModel.getAuthToken());
+                startActivity(intent);
+                return true;
+            default:
+                return false;
+        }
     }
 }
