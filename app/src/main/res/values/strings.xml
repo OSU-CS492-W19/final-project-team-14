@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">SpotifyRemote</string>
+
+    <string name="auth_error_message">Unable to authenticate with Spotify. Are you connected to the internet?</string>
+    <string name="loading_error_title">Unable to load</string>
+    <string name="loading_error_description">Please check your internet connection.</string>
+
+    <string name="new_releases_title">New Releases</string>
+
+    <string name="devices_title">Devices</string>
+    <string name="no_devices_found_title">No devices found</string>
+    <string name="no_devices_found_description">Login to Spotify on another device for it to show up here.</string>
+    <string name="pref_device_key" translatable="false">pref_device_key</string>
+    <string name="pref_device_id_key" translatable="false">pref_device_id_key</string>
+    <string name="pref_device_id_default">No device chosen</string>
+    <string name="pref_device_title">Playback device</string>
+
+    <string name="playback_successful">Played to device</string>
+    <string name="playback_error_premium_required">Premium required!</string>
 </resources>
