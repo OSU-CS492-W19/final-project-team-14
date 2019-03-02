@@ -17,7 +17,8 @@
             android:id="@+id/rv_albums"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:padding="5dp"/>
+            android:padding="5dp"
+            android:clipToPadding="false"/>
 
         <TextView
             android:id="@+id/tv_auth_error_message"
