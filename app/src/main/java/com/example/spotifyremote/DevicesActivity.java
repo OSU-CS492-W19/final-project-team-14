@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -38,6 +39,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
 
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorTV;
+    private LinearLayout mNoDevicesLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
 
         mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorTV = findViewById(R.id.tv_loading_error_message);
+        mNoDevicesLL = findViewById(R.id.ll_no_devices);
 
         mDevicesRV = findViewById(R.id.rv_devices);
         mDevicesRV.setAdapter(mDevicesAdapter);
@@ -83,9 +86,15 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
                 mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                 if (devices != null) {
                     mLoadingErrorTV.setVisibility(View.INVISIBLE);
-                    mDevicesRV.setVisibility(View.VISIBLE);
-                    mDevicesAdapter.updateDevices(devices);
+                    if (devices.size() > 0) {
+                        mNoDevicesLL.setVisibility(View.INVISIBLE);
+                        mDevicesRV.setVisibility(View.VISIBLE);
+                        mDevicesAdapter.updateDevices(devices);
+                    } else {
+                        mNoDevicesLL.setVisibility(View.VISIBLE);
+                    }
                 } else {
+                    mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
                     mLoadingErrorTV.setVisibility(View.VISIBLE);
                 }
