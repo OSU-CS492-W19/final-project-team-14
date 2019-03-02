@@ -1,5 +1,9 @@
 package com.example.spotifyremote.utils;
 
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
+
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -7,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SpotifyUtils {
+    private static final String TAG = SpotifyUtils.class.getSimpleName();
+
     public static final String CLIENT_ID = "bfca3780fa8947edaa1959febab111b9";
     public static final String REDIRECT_URI = "spotifyremote://spotify/callback";
     public static final int REQUEST_CODE = 1423;
@@ -18,6 +24,9 @@ public class SpotifyUtils {
 
     private static final String SPOTIFY_NEW_RELEASES_URL = "https://api.spotify.com/v1/browse/new-releases";
     private static final String SPOTIFY_DEVICE_LIST_URL = "https://api.spotify.com/v1/me/player/devices";
+
+    private static final String SPOTIFY_PLAYBACK_BASE_URL = "https://api.spotify.com/v1/me/player/play";
+    private static final String SPOTIFY_PLAYBACK_QUERY_PARAM = "device_id";
 
     public static String doAuthorizedHTTPGet(String url, String token) throws IOException {
         String[] header = {"Authorization", "Bearer " + token};
@@ -92,5 +101,39 @@ public class SpotifyUtils {
             return new ArrayList<>(Arrays.asList(results.devices));
         }
         else return null;
+    }
+
+    public static void playContextURIOnDevice(String contextURI, String deviceID, String token) {
+        String uri = Uri.parse(SPOTIFY_PLAYBACK_BASE_URL).buildUpon()
+                .appendQueryParameter(SPOTIFY_PLAYBACK_QUERY_PARAM, deviceID)
+                .build()
+                .toString();
+        String[] header = {"Authorization", "Bearer " + token};
+        String body = "{\"context_uri\":\"" + contextURI + "\"}";
+
+        Log.d(TAG, "PUT to uri: " + uri);
+        Log.d(TAG, "PUT with body: " + body);
+
+        try {
+            String res = NetworkUtils.doHTTPPut(uri, header, body);
+            Log.d(TAG, "PUT res:\n" + res);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class PlayContextOnDeviceTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            String uri = params[0];
+            String id = params[1];
+            String token = params[2];
+            SpotifyUtils.playContextURIOnDevice(uri, id, token);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+        }
     }
 }

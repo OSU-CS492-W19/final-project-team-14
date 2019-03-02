@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
@@ -136,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
         String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
         if (!deviceID.equals(DEFAULT)) {
-            Log.d(TAG, "playing to device: " + deviceID);
+            Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
+            new SpotifyUtils.PlayContextOnDeviceTask().execute(album.uri, deviceID, mSpotifyViewModel.getAuthToken());
         }
     }
 
