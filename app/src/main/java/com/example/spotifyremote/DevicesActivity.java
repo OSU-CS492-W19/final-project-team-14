@@ -1,6 +1,7 @@
 package com.example.spotifyremote;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,7 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.example.spotifyremote.data.DevicesViewModel;
+import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
 
@@ -55,17 +56,17 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mDevicesViewModel = ViewModelProviders.of(this).get(DevicesViewModel.class);
+        mDevicesAdapter = new DevicesAdapter(this);
+
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadDevices(true);
+                mDevicesViewModel.loadDevices();
             }
         });
-
-        mDevicesViewModel = ViewModelProviders.of(this).get(DevicesViewModel.class);
-        mDevicesAdapter = new DevicesAdapter(this);
 
         mLoadingErrorLL = findViewById(R.id.ll_loading_error);
         mNoDevicesLL = findViewById(R.id.ll_no_devices);
@@ -79,32 +80,44 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         if (intent != null && intent.hasExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA)) {
             String authToken = (String) intent.getSerializableExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA);
             mDevicesViewModel.setAuthToken(authToken);
-            loadDevices(false);
+            loadDevices();
         }
     }
 
-    private void loadDevices(Boolean forceLoad) {
+    private void loadDevices() {
+        mDevicesViewModel.loadDevices();
         mSwipeRefreshLayout.setRefreshing(true);
 
-        mDevicesViewModel.getDevices(SpotifyUtils.getDeviceListURL(), forceLoad).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
+        mDevicesViewModel.getDevices().observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyDevice> devices) {
-                mSwipeRefreshLayout.setRefreshing(false);
+               mDevicesAdapter.updateDevices(devices);
+            }
+        });
 
-                if (devices != null) {
+        mDevicesViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(@Nullable Status status) {
+                if (status == Status.LOADING) {
+                    mSwipeRefreshLayout.setRefreshing(true);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
-                    if (devices.size() > 0) {
-                        mNoDevicesLL.setVisibility(View.INVISIBLE);
-                        mDevicesRV.setVisibility(View.VISIBLE);
-                        mDevicesAdapter.updateDevices(devices);
-                    } else {
-                        mDevicesRV.setVisibility(View.INVISIBLE);
-                        mNoDevicesLL.setVisibility(View.VISIBLE);
-                    }
+                    mNoDevicesLL.setVisibility(View.INVISIBLE);
+                    mDevicesRV.setVisibility(View.VISIBLE);
+                } else if (status == Status.SUCCESS) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mNoDevicesLL.setVisibility(View.INVISIBLE);
+                    mDevicesRV.setVisibility(View.VISIBLE);
+                } else if (status == Status.EMPTY) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mNoDevicesLL.setVisibility(View.VISIBLE);
+                    mDevicesRV.setVisibility(View.INVISIBLE);
                 } else {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    mLoadingErrorLL.setVisibility(View.VISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
-                    mLoadingErrorLL.setVisibility(View.VISIBLE);
                 }
             }
         });
