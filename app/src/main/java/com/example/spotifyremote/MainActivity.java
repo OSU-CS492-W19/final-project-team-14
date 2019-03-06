@@ -25,7 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.spotifyremote.data.AlbumViewModel;
+import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadAlbums(true);
+                mAlbumViewModel.loadAlbums();
             }
         });
 
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
             AuthenticationRequest request = builder.build();
             AuthenticationClient.openLoginActivity(this, SpotifyUtils.REQUEST_CODE, request);
         }
-        else loadAlbums(false);
+        connected();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                     // Handle successful response
                     mAlbumViewModel.setAuthToken(response.getAccessToken());
                     Log.d(TAG, "successfully received access token: " + mAlbumViewModel.getAuthToken());
-                    loadAlbums(false);
+                    mAlbumViewModel.loadAlbums();
                     break;
 
                 // Auth flow returned an error
@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                     // Handle error response
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
                     mAuthErrorTV.setVisibility(View.VISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
                     break;
 
                 // Most likely auth flow was cancelled
@@ -131,20 +132,32 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         }
     }
 
-    private void loadAlbums(Boolean forceLoad) {
-        mSwipeRefreshLayout.setRefreshing(true);
-        mAlbumViewModel.getNewReleases(SpotifyUtils.getNewReleasesUrl(), forceLoad).observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
+    private void connected() {
+        mAlbumViewModel.getAlbums().observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
-                mSwipeRefreshLayout.setRefreshing(false);
-                if (albums != null) {
+                mAlbumAdapter.updateAlbums(albums);
+            }
+        });
+
+        mAlbumViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(@Nullable Status status) {
+                if (status == Status.LOADING) {
+                    mSwipeRefreshLayout.setRefreshing(true);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
                     mAuthErrorTV.setVisibility(View.INVISIBLE);
                     mAlbumsRV.setVisibility(View.VISIBLE);
-                    mAlbumAdapter.updateAlbums(albums);
+                } else if (status == Status.SUCCESS) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorTV.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.VISIBLE);
                 } else {
-                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                    mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.VISIBLE);
+                    mAuthErrorTV.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
                 }
             }
         });
