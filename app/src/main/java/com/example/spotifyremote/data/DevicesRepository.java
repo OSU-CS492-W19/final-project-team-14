@@ -30,7 +30,7 @@ public class DevicesRepository implements DevicesAsyncTask.Callback{
         mDevices.setValue(null);
         mLoadingStatus.setValue(Status.LOADING);
         String url = SpotifyUtils.getDeviceListURL();
-        Log.d(TAG, "loading albums from url: " + url);
+        Log.d(TAG, "loading devices from url: " + url);
         new DevicesAsyncTask(url, this).execute(token);
     }
 

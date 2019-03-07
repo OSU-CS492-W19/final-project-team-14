@@ -76,18 +76,18 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         mDevicesRV.setLayoutManager(new LinearLayoutManager(this));
         mDevicesRV.setHasFixedSize(true);
 
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA)) {
-            String authToken = (String) intent.getSerializableExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA);
-            mDevicesViewModel.setAuthToken(authToken);
-            loadDevices();
+        if (mDevicesViewModel.getAuthToken() == null) {
+            Intent intent = getIntent();
+            if (intent != null && intent.hasExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA)) {
+                String authToken = (String) intent.getSerializableExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA);
+                mDevicesViewModel.setAuthToken(authToken);
+                mDevicesViewModel.loadDevices();
+            }
         }
+        loadDevices();
     }
 
     private void loadDevices() {
-        mDevicesViewModel.loadDevices();
-        mSwipeRefreshLayout.setRefreshing(true);
-
         mDevicesViewModel.getDevices().observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyDevice> devices) {
