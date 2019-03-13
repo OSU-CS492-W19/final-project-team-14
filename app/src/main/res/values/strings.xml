@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">SpotifyRemote</string>
 
+    <string name="search_box_hint">Search GitHub...</string>
+    <string name="search_button_text">Do Search</string>
+
     <string name="auth_error_message">Unable to authenticate with Spotify. Are you connected to the internet?</string>
     <string name="loading_error_title">Unable to load</string>
     <string name="loading_error_description">Please check your internet connection.</string>
