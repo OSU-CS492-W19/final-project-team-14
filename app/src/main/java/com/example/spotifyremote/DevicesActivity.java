@@ -26,6 +26,8 @@ import android.widget.LinearLayout;
 import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.ArrayList;
 
@@ -85,6 +87,12 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
         loadDevices();
     }
 
+    @Override
+    protected void onPostAuthSuccess() {
+        mDevicesViewModel.setAuthToken(getAuthToken());
+        mDevicesViewModel.loadDevices();
+    }
+
     private void loadDevices() {
         mDevicesViewModel.getDevices().observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyDevice>>() {
             @Override
@@ -96,20 +104,22 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
         mDevicesViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
             @Override
             public void onChanged(@Nullable Status status) {
-                Log.d(TAG, status.toString());
                 if (status == Status.LOADING) {
                     mSwipeRefreshLayout.setRefreshing(true);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.VISIBLE);
                 } else if (status == Status.SUCCESS) {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.VISIBLE);
                 } else if (status == Status.EMPTY) {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.VISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
                 } else if (status == Status.AUTH_ERR) {
@@ -121,6 +131,7 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.VISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
                 }

@@ -1,8 +1,8 @@
 package com.example.spotifyremote;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.spotifyremote.utils.SpotifyUtils;
@@ -34,6 +34,7 @@ public abstract class AuthenticatableActivity extends AppCompatActivity {
                 // Response was successful and contains auth token
                 case TOKEN:
                     setAuthToken(response.getAccessToken());
+                    onPostAuthSuccess();
                     break;
 
                 // Auth flow returned an error
@@ -48,8 +49,10 @@ public abstract class AuthenticatableActivity extends AppCompatActivity {
         }
     }
 
-    private void setAuthToken(String token) {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_auth_token_key), Context.MODE_PRIVATE);
+    protected abstract void onPostAuthSuccess();
+
+    protected void setAuthToken(String token) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(getString(R.string.pref_auth_token_key), token);
         editor.apply();
@@ -57,7 +60,7 @@ public abstract class AuthenticatableActivity extends AppCompatActivity {
     }
 
     protected String getAuthToken() {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_auth_token_key), Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String token = sharedPreferences.getString(getString(R.string.pref_auth_token_key), getString(R.string.pref_auth_token_default));
         Log.d(TAG, "pulled token: " + token);
         return token;

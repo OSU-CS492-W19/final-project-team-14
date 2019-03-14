@@ -32,7 +32,4 @@ public class AlbumViewModel extends ViewModel {
     public void setAuthToken(String token) {
         mAuthToken = token;
     }
-    public String getAuthToken() {
-        return mAuthToken;
-    }
 }

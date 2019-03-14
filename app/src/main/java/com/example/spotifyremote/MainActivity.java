@@ -95,6 +95,12 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         connected();
     }
 
+    @Override
+    protected void onPostAuthSuccess() {
+        mAlbumViewModel.setAuthToken(getAuthToken());
+        mAlbumViewModel.loadAlbums();
+    }
+
     private void connected() {
         mAlbumViewModel.getAlbums().observe(this, new Observer<ArrayList<SpotifyUtils.SpotifyAlbum>>() {
             @Override
@@ -157,7 +163,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         protected void onPostExecute(String s) {
             if (s != null) {
                 SpotifyUtils.SpotifyResponse response = SpotifyUtils.parseResponseJSON(s);
-                if (response != null && response.error != null) {
+                if (response.error != null) {
                     if (response.error.status == 403) toast(getString(R.string.playback_error_premium_required));
                 }
             } else {
