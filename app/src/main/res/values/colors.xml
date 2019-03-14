@@ -4,5 +4,7 @@
     <color name="colorPrimaryDark">#26418f</color>
     <color name="colorAccent">#7e57c2</color>
 
-    <color name="colorChosen">#4caf50</color>
+    <color name="colorDefaultCardBG">#414141</color>
+
+    <color name="colorChosen">@color/colorAccent</color>
 </resources>

@@ -84,6 +84,7 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
         if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
         mDevicesViewModel.setAuthToken(getAuthToken());
         mDevicesViewModel.loadDevices();
+        mDevicesAdapter.setSelectedDeviceID(getSelectedDeviceID());
         loadDevices();
     }
 
@@ -171,5 +172,10 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
         editor.putString(getString(R.string.pref_device_id_key), device.id);
         editor.apply();
         Log.d(TAG, "set chosen device with id: " + device.id);
+    }
+
+    public String getSelectedDeviceID() {
+        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
+        return sharedPreferences.getString(getString(R.string.pref_device_id_key), getString(R.string.pref_device_id_default));
     }
 }
