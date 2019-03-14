@@ -5,11 +5,12 @@ import android.util.Log;
 import com.example.spotifyremote.utils.SpotifyUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-public class AlbumRepository implements AlbumAsyncTask.Callback {
+public class AlbumRepository implements SpotifyAsyncTask.Callback {
     private static final String TAG = AlbumRepository.class.getSimpleName();
 
     private MutableLiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> mAlbums;
@@ -31,16 +32,22 @@ public class AlbumRepository implements AlbumAsyncTask.Callback {
         mLoadingStatus.setValue(Status.LOADING);
         String url = SpotifyUtils.getNewReleasesUrl();
         Log.d(TAG, "loading albums from url: " + url);
-        new AlbumAsyncTask(url, this).execute(token);
+        new SpotifyAsyncTask(url, this).execute(token);
     }
 
     @Override
-    public void onLoadFinish(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
-        mAlbums.setValue(albums);
-        if (albums != null) {
-            mLoadingStatus.setValue(Status.SUCCESS);
-        } else {
-            mLoadingStatus.setValue(Status.ERROR);
+    public void onLoadFinish(SpotifyUtils.SpotifyResponse response) {
+        if (response != null) {
+            if (response.albums != null && response.albums.items != null) {
+                mAlbums.setValue(new ArrayList<>(Arrays.asList(response.albums.items)));
+                mLoadingStatus.setValue(Status.SUCCESS);
+                return;
+            }
+            else if (response.error != null && response.error.status == 401) {
+                mLoadingStatus.setValue(Status.AUTH_ERR);
+                return;
+            }
         }
+        mLoadingStatus.setValue(Status.ERROR);
     }
 }

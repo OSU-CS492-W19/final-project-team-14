@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mAlbumsRV;
     private LinearLayout mLoadingErrorLL;
-    private TextView mAuthErrorTV;
+    private LinearLayout mAuthErrorLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         });
 
         mLoadingErrorLL = findViewById(R.id.ll_loading_error);
-        mAuthErrorTV = findViewById(R.id.tv_auth_error_message);
+        mAuthErrorLL = findViewById(R.id.ll_auth_error);
 
         mAlbumsRV = findViewById(R.id.rv_albums);
         mAlbumsRV.setAdapter(mAlbumAdapter);
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                     Log.d(TAG, "failed to authenticate: " + response.getError());
                     // Handle error response
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
-                    mAuthErrorTV.setVisibility(View.VISIBLE);
+                    mAuthErrorLL.setVisibility(View.VISIBLE);
                     mAlbumsRV.setVisibility(View.INVISIBLE);
                     break;
 
@@ -146,17 +146,23 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                 if (status == Status.LOADING) {
                     mSwipeRefreshLayout.setRefreshing(true);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
-                    mAuthErrorTV.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mAlbumsRV.setVisibility(View.VISIBLE);
                 } else if (status == Status.SUCCESS) {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
-                    mAuthErrorTV.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mAlbumsRV.setVisibility(View.VISIBLE);
+                } else if (status == Status.AUTH_ERR) {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.VISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                    // try to re-authenticate
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.VISIBLE);
-                    mAuthErrorTV.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mAlbumsRV.setVisibility(View.INVISIBLE);
                 }
             }

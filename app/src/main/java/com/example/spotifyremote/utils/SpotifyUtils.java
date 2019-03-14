@@ -33,11 +33,26 @@ public class SpotifyUtils {
         return NetworkUtils.doHTTPGet(url, header);
     }
 
-    /* Gson parsing classes */
-    public static class SpotifyAlbumResults {
+    /* RESPONSES */
+    public static class SpotifyResponse {
         public SpotifyAlbumsItem albums;
+        public SpotifyDevice[] devices;
+        public SpotifyError error;
     }
 
+    public static class SpotifyError {
+        public int status;
+        public String message;
+        public String reason;
+    }
+
+    public static SpotifyResponse parseResponseJSON(String json) {
+        Gson gson = new Gson();
+        SpotifyResponse results = gson.fromJson(json, SpotifyResponse.class);
+        return results;
+    }
+
+    /* ALBUMS */
     public static class SpotifyAlbumsItem {
         public SpotifyAlbum[] items;
     }
@@ -67,21 +82,8 @@ public class SpotifyUtils {
 
     /* NEW RELEASES */
     public static String getNewReleasesUrl() { return SPOTIFY_NEW_RELEASES_URL; }
-    public static ArrayList<SpotifyAlbum> parseNewReleasesJSON(String json) {
-        Gson gson = new Gson();
-        SpotifyAlbumResults results = gson.fromJson(json, SpotifyAlbumResults.class);
-
-        if (results != null && results.albums != null && results.albums.items != null) {
-            return new ArrayList<>(Arrays.asList(results.albums.items));
-        }
-        else return null;
-    }
 
     /* DEVICES */
-    public static class SpotifyDeviceList {
-        public SpotifyDevice[] devices;
-    }
-
     public static class SpotifyDevice {
         public String id;
         public Boolean is_active;
@@ -93,15 +95,6 @@ public class SpotifyUtils {
     }
 
     public static String getDeviceListURL() { return SPOTIFY_DEVICE_LIST_URL; }
-    public static ArrayList<SpotifyDevice> parseDeviceListJSON(String json) {
-        Gson gson = new Gson();
-        SpotifyDeviceList results = gson.fromJson(json, SpotifyDeviceList.class);
-
-        if (results != null && results.devices != null) {
-            return new ArrayList<>(Arrays.asList(results.devices));
-        }
-        else return null;
-    }
 
     public static String playContextURIOnDevice(String contextURI, String deviceID, String token) {
         String uri = Uri.parse(SPOTIFY_PLAYBACK_BASE_URL).buildUpon()
@@ -122,22 +115,5 @@ public class SpotifyUtils {
             e.printStackTrace();
             return null;
         }
-    }
-
-    /* PUT RESPONSES */
-    public static class SpotifyResponse {
-        public SpotifyError error;
-    }
-
-    public static class SpotifyError {
-        public int status;
-        public String message;
-        public String reason;
-    }
-
-    public static SpotifyResponse parseResponseJSON(String json) {
-        Gson gson = new Gson();
-        SpotifyResponse results = gson.fromJson(json, SpotifyResponse.class);
-        return results;
     }
 }
