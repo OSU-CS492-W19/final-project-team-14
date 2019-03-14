@@ -3,7 +3,6 @@ package com.example.spotifyremote;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -18,23 +17,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AuthenticatableActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private AlbumViewModel mAlbumViewModel;
@@ -91,45 +89,10 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
 
-        // authenticate if we don't have an access token
-        if (mAlbumViewModel.getAuthToken() == null) {
-            AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(SpotifyUtils.CLIENT_ID, AuthenticationResponse.Type.TOKEN, SpotifyUtils.REDIRECT_URI);
-            builder.setScopes(SpotifyUtils.SPOTIFY_PERMISSIONS);
-            AuthenticationRequest request = builder.build();
-            AuthenticationClient.openLoginActivity(this, SpotifyUtils.REQUEST_CODE, request);
-        }
+        if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
+        mAlbumViewModel.setAuthToken(getAuthToken());
+        mAlbumViewModel.loadAlbums();
         connected();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SpotifyUtils.REQUEST_CODE) {
-            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
-            switch (response.getType()) {
-                // Response was successful and contains auth token
-                case TOKEN:
-                    // Handle successful response
-                    mAlbumViewModel.setAuthToken(response.getAccessToken());
-                    Log.d(TAG, "successfully received access token: " + mAlbumViewModel.getAuthToken());
-                    mAlbumViewModel.loadAlbums();
-                    break;
-
-                // Auth flow returned an error
-                case ERROR:
-                    Log.d(TAG, "failed to authenticate: " + response.getError());
-                    // Handle error response
-                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
-                    mAuthErrorLL.setVisibility(View.VISIBLE);
-                    mAlbumsRV.setVisibility(View.INVISIBLE);
-                    break;
-
-                // Most likely auth flow was cancelled
-                default:
-                    // Handle other cases
-            }
-        }
     }
 
     private void connected() {
@@ -154,11 +117,11 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                     mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mAlbumsRV.setVisibility(View.VISIBLE);
                 } else if (status == Status.AUTH_ERR) {
+                    authenticate();
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
                     mAuthErrorLL.setVisibility(View.VISIBLE);
                     mAlbumsRV.setVisibility(View.INVISIBLE);
-                    // try to re-authenticate
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.VISIBLE);
@@ -174,9 +137,9 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
         final String DEFAULT = getString(R.string.pref_device_id_default);
         SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
         String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
-        if (!deviceID.equals(DEFAULT)) {
+        if (!TextUtils.equals(deviceID, DEFAULT)) {
             Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
-            new PlayContextOnDeviceTask().execute(album.uri, deviceID, mAlbumViewModel.getAuthToken());
+            new PlayContextOnDeviceTask().execute(album.uri, deviceID, getAuthToken());
         }
     }
 
@@ -221,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements AlbumAdapter.OnAl
                 return true;
             case R.id.nav_devices:
                 Intent intent = new Intent(this, DevicesActivity.class);
-                intent.putExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA, mAlbumViewModel.getAuthToken());
                 startActivity(intent);
                 return true;
             default:

@@ -44,6 +44,10 @@ public class DevicesRepository implements SpotifyAsyncTask.Callback {
                 else mLoadingStatus.setValue(Status.EMPTY);
                 return;
             }
+            else if (response.error != null && response.error.status == 401) {
+                mLoadingStatus.setValue(Status.AUTH_ERR);
+                return;
+            }
         }
         mLoadingStatus.setValue(Status.ERROR);
     }

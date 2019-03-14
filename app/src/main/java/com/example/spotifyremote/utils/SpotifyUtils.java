@@ -16,7 +16,6 @@ public class SpotifyUtils {
     public static final String CLIENT_ID = "bfca3780fa8947edaa1959febab111b9";
     public static final String REDIRECT_URI = "spotifyremote://spotify/callback";
     public static final int REQUEST_CODE = 1423;
-    public static final String SPOTIFY_AUTH_TOKEN_EXTRA = "SPOTIFY_AUTH_TOKEN_EXTRA";
     public static final String[] SPOTIFY_PERMISSIONS = {
             "streaming",
             "user-read-playback-state"
