@@ -32,5 +32,4 @@ public class DevicesViewModel extends ViewModel {
     public void loadDevices() { mRepository.loadDevices(mAuthToken); }
 
     public void setAuthToken(String token) { mAuthToken = token; }
-    public String getAuthToken() { return mAuthToken; }
 }

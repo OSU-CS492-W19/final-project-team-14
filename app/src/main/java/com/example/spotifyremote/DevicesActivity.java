@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,10 +26,12 @@ import android.widget.LinearLayout;
 import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.ArrayList;
 
-public class DevicesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DevicesAdapter.OnDeviceClickListener {
+public class DevicesActivity extends AuthenticatableActivity implements NavigationView.OnNavigationItemSelectedListener, DevicesAdapter.OnDeviceClickListener {
     private static final String TAG = DevicesActivity.class.getSimpleName();
 
     private DevicesViewModel mDevicesViewModel;
@@ -39,6 +42,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
     private RecyclerView mDevicesRV;
 
     private LinearLayout mLoadingErrorLL;
+    private LinearLayout mAuthErrorLL;
     private LinearLayout mNoDevicesLL;
 
     @Override
@@ -69,6 +73,7 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         });
 
         mLoadingErrorLL = findViewById(R.id.ll_loading_error);
+        mAuthErrorLL = findViewById(R.id.ll_auth_error);
         mNoDevicesLL = findViewById(R.id.ll_no_devices);
 
         mDevicesRV = findViewById(R.id.rv_devices);
@@ -76,15 +81,16 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
         mDevicesRV.setLayoutManager(new LinearLayoutManager(this));
         mDevicesRV.setHasFixedSize(true);
 
-        if (mDevicesViewModel.getAuthToken() == null) {
-            Intent intent = getIntent();
-            if (intent != null && intent.hasExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA)) {
-                String authToken = (String) intent.getSerializableExtra(SpotifyUtils.SPOTIFY_AUTH_TOKEN_EXTRA);
-                mDevicesViewModel.setAuthToken(authToken);
-                mDevicesViewModel.loadDevices();
-            }
-        }
+        if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
+        mDevicesViewModel.setAuthToken(getAuthToken());
+        mDevicesViewModel.loadDevices();
         loadDevices();
+    }
+
+    @Override
+    protected void onPostAuthSuccess() {
+        mDevicesViewModel.setAuthToken(getAuthToken());
+        mDevicesViewModel.loadDevices();
     }
 
     private void loadDevices() {
@@ -101,21 +107,31 @@ public class DevicesActivity extends AppCompatActivity implements NavigationView
                 if (status == Status.LOADING) {
                     mSwipeRefreshLayout.setRefreshing(true);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.VISIBLE);
                 } else if (status == Status.SUCCESS) {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.VISIBLE);
                 } else if (status == Status.EMPTY) {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.VISIBLE);
+                    mDevicesRV.setVisibility(View.INVISIBLE);
+                } else if (status == Status.AUTH_ERR) {
+                    authenticate();
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.VISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
                 } else {
                     mSwipeRefreshLayout.setRefreshing(false);
                     mLoadingErrorLL.setVisibility(View.VISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
                     mNoDevicesLL.setVisibility(View.INVISIBLE);
                     mDevicesRV.setVisibility(View.INVISIBLE);
                 }
