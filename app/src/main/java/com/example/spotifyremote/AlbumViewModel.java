@@ -27,7 +27,7 @@ public class AlbumViewModel extends ViewModel {
     public LiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> getAlbums() { return mAlbums; }
     public LiveData<Status> getLoadingStatus() { return mLoadingStatus; }
 
-    public void loadAlbums() { mRepository.loadAlbums(mAuthToken); }
+    public void loadAlbums(String url) { mRepository.loadAlbums(mAuthToken, url); }
 
     public void setAuthToken(String token) {
         mAuthToken = token;
