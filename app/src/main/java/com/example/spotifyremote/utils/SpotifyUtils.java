@@ -27,6 +27,10 @@ public class SpotifyUtils {
     private static final String SPOTIFY_PLAYBACK_BASE_URL = "https://api.spotify.com/v1/me/player/play";
     private static final String SPOTIFY_PLAYBACK_QUERY_PARAM = "device_id";
 
+    private static final String SPOTIFY_SEARCH_BASE_URL = "https://api.spotify.com/v1/search";
+    private static final String SPOTIFY_SEARCH_QUERY_PARAM = "q";
+    private static final String SPOTIFY_SEARCH_TYPE_PARAM = "type";
+
     public static String doAuthorizedHTTPGet(String url, String token) throws IOException {
         String[] header = {"Authorization", "Bearer " + token};
         return NetworkUtils.doHTTPGet(url, header);
@@ -81,6 +85,15 @@ public class SpotifyUtils {
 
     /* NEW RELEASES */
     public static String getNewReleasesUrl() { return SPOTIFY_NEW_RELEASES_URL; }
+
+    public static String buildSearchURL(String query) {
+        return Uri.parse(SPOTIFY_SEARCH_BASE_URL).buildUpon()
+                .appendQueryParameter(SPOTIFY_SEARCH_QUERY_PARAM, query)
+                .appendQueryParameter(SPOTIFY_SEARCH_TYPE_PARAM, "album")
+                .build()
+                .toString();
+    }
+
 
     /* DEVICES */
     public static class SpotifyDevice {

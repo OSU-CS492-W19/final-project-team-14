@@ -19,8 +19,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SearchEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -96,6 +100,12 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
     protected void onPostAuthSuccess() {
         mAlbumViewModel.setAuthToken(getAuthToken());
         mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
@@ -163,7 +173,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         protected void onPostExecute(String s) {
             if (s != null) {
                 SpotifyUtils.SpotifyResponse response = SpotifyUtils.parseResponseJSON(s);
-                if (response.error != null) {
+                if (response != null && response.error != null) {
                     if (response.error.status == 403) toast(getString(R.string.playback_error_premium_required));
                 }
             } else {
@@ -177,6 +187,10 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            case R.id.action_search:
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
