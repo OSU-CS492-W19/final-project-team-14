@@ -1,22 +1,24 @@
 package com.example.spotifyremote.data;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.spotifyremote.utils.SpotifyUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class AlbumAsyncTask extends AsyncTask<String, Void, String> {
+public class SpotifyAsyncTask extends AsyncTask<String, Void, String> {
 
     private String mURL;
     private Callback mCallback;
 
     public interface Callback {
-        void onLoadFinish(ArrayList<SpotifyUtils.SpotifyAlbum> albums);
+        void onLoadFinish(SpotifyUtils.SpotifyResponse response);
     }
 
-    public AlbumAsyncTask(String url, Callback callback) {
+    public SpotifyAsyncTask(String url, Callback callback) {
         mURL = url;
         mCallback = callback;
     }
@@ -36,8 +38,9 @@ public class AlbumAsyncTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        ArrayList<SpotifyUtils.SpotifyAlbum> results = null;
-        if (s != null) results = SpotifyUtils.parseNewReleasesJSON(s);
-        mCallback.onLoadFinish(results);
+        SpotifyUtils.SpotifyResponse response = null;
+        if (s != null) response =  SpotifyUtils.parseResponseJSON(s);
+
+        mCallback.onLoadFinish(response);
     }
 }

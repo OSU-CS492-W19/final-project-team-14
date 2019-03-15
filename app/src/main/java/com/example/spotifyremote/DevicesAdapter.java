@@ -1,23 +1,25 @@
 package com.example.spotifyremote;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.spotifyremote.utils.SpotifyUtils;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceViewHolder> {
     private ArrayList<SpotifyUtils.SpotifyDevice> mSpotifyDevices;
     private OnDeviceClickListener mOnDeviceClickListener;
+    private String mSelectedDeviceID;
 
     public interface OnDeviceClickListener {
         void onDeviceClick(SpotifyUtils.SpotifyDevice device);
@@ -55,11 +57,13 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceVi
 
     class DeviceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        private MaterialCardView mDeviceCV;
         private TextView mDeviceNameTV;
         private TextView mDeviceTypeTV;
 
         public DeviceViewHolder(View itemView) {
             super(itemView);
+            mDeviceCV = itemView.findViewById(R.id.cv_device_item);
             mDeviceNameTV = itemView.findViewById(R.id.tv_device_name);
             mDeviceTypeTV = itemView.findViewById(R.id.tv_device_type);
             itemView.setOnClickListener(this);
@@ -68,11 +72,22 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DeviceVi
         public void bind(SpotifyUtils.SpotifyDevice device) {
             mDeviceNameTV.setText(device.name);
             mDeviceTypeTV.setText(device.type);
+
+            if (TextUtils.equals(mSpotifyDevices.get(getAdapterPosition()).id, mSelectedDeviceID)) {
+                mDeviceCV.setStrokeColor(ContextCompat.getColor(mDeviceCV.getContext(), R.color.colorChosen));
+            } else {
+                mDeviceCV.setStrokeColor(ContextCompat.getColor(mDeviceCV.getContext(), R.color.colorDefaultCardBG));
+            }
         }
 
         @Override
         public void onClick(View v) {
-            mOnDeviceClickListener.onDeviceClick(mSpotifyDevices.get(getAdapterPosition()));
+            SpotifyUtils.SpotifyDevice device = mSpotifyDevices.get(getAdapterPosition());
+            mSelectedDeviceID = device.id;
+            mOnDeviceClickListener.onDeviceClick(device);
+            notifyDataSetChanged();
         }
     }
+
+    public void setSelectedDeviceID(String id) { mSelectedDeviceID = id; }
 }

@@ -44,8 +44,8 @@
                     android:clipToPadding="false"/>
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <include layout="@layout/loading_error"
-                android:visibility="invisible"/>
+            <include layout="@layout/auth_error" android:visibility="invisible"/>
+            <include layout="@layout/loading_error" android:visibility="invisible"/>
 
             <LinearLayout
                 android:id="@+id/ll_no_devices"
