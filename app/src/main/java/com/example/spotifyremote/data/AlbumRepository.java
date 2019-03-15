@@ -27,10 +27,9 @@ public class AlbumRepository implements SpotifyAsyncTask.Callback {
     public LiveData<ArrayList<SpotifyUtils.SpotifyAlbum>> getAlbums() { return mAlbums; }
     public LiveData<Status> getLoadingStatus() { return mLoadingStatus; }
 
-    public void loadAlbums(String token) {
+    public void loadAlbums(String token, String url) {
         mAlbums.setValue(null);
         mLoadingStatus.setValue(Status.LOADING);
-        String url = SpotifyUtils.getNewReleasesUrl();
         Log.d(TAG, "loading albums from url: " + url);
         new SpotifyAsyncTask(url, this).execute(token);
     }

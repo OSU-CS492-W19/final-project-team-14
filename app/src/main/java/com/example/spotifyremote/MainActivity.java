@@ -77,7 +77,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mAlbumViewModel.loadAlbums();
+                mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
             }
         });
 
@@ -91,14 +91,14 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
         if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums();
+        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
         connected();
     }
 
     @Override
     protected void onPostAuthSuccess() {
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums();
+        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
     }
 
     private void connected() {
