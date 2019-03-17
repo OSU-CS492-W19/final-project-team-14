@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -192,8 +193,20 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
                 Intent intent = new Intent(this, SearchActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.action_settings:
+                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(SettingsIntent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    private void SetUserName(String query) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String user = preferences.getString(getString(R.string.pref_user_key), "");
     }
 
     @Override

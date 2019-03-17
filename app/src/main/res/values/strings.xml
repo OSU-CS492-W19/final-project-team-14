@@ -6,6 +6,10 @@
     <string name="auth_error_title">Authentication error</string>
     <string name="auth_error_description">Unable to authenticate with Spotify\'s servers.</string>
 
+
+    <string name="pref_user_key" translatable="false">pref_user</string>
+    <string name="pref_user_title">Spotify user</string>
+
     <string name="loading_error_title">Unable to load</string>
     <string name="loading_error_description">Please check your internet connection.</string>
 

@@ -39,6 +39,13 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.example.spotifyremote.SettingsActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
     </application>
