@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.spotifyremote.data.Status;
@@ -40,6 +41,10 @@ import java.util.ArrayList;
 public class MainActivity extends AuthenticatableActivity implements AlbumAdapter.OnAlbumClickListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
+
+
+    private SharedPreferences mPreferences;
     private AlbumViewModel mAlbumViewModel;
     private AlbumAdapter mAlbumAdapter;
 
@@ -57,10 +62,23 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     private LinearLayout mLoadingErrorLL;
     private LinearLayout mAuthErrorLL;
 
+    private TextView mUserEntry;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
+            }
+        };
+        mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
