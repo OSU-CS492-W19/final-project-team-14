@@ -72,13 +72,13 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
-            }
-        };
-        mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
+//        sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+//            @Override
+//            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//                mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
+//            }
+//        };
+//        mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -221,10 +221,10 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
 
 
-    private void SetUserName(String query) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        String user = preferences.getString(getString(R.string.pref_user_key), "");
+    private void setUserName(String query) {
+//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+//
+//        String user = preferences.getString(getString(R.string.pref_user_key), "");
     }
 
     @Override
