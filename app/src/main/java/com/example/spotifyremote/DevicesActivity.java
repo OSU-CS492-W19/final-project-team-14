@@ -17,11 +17,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
@@ -34,6 +36,12 @@ import java.util.ArrayList;
 public class DevicesActivity extends AuthenticatableActivity implements NavigationView.OnNavigationItemSelectedListener, DevicesAdapter.OnDeviceClickListener {
     private static final String TAG = DevicesActivity.class.getSimpleName();
 
+
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
+
+
+    private SharedPreferences mPreferences;
+
     private DevicesViewModel mDevicesViewModel;
     private DevicesAdapter mDevicesAdapter;
 
@@ -44,6 +52,9 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
     private LinearLayout mLoadingErrorLL;
     private LinearLayout mAuthErrorLL;
     private LinearLayout mNoDevicesLL;
+
+
+    private TextView mUserEntry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +97,21 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
         mDevicesViewModel.loadDevices();
         mDevicesAdapter.setSelectedDeviceID(getSelectedDeviceID());
         loadDevices();
+
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mUserEntry = navigationView.getHeaderView(0).findViewById(R.id.tv_username);
+
+        mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
+
+        sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
+            }
+        };
+        mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
     }
 
     @Override
