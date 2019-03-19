@@ -92,19 +92,9 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
         mDevicesRV.setLayoutManager(new LinearLayoutManager(this));
         mDevicesRV.setHasFixedSize(true);
 
-        if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
-        mDevicesViewModel.setAuthToken(getAuthToken());
-        mDevicesViewModel.loadDevices();
-        mDevicesAdapter.setSelectedDeviceID(getSelectedDeviceID());
-        loadDevices();
-
-
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         mUserEntry = navigationView.getHeaderView(0).findViewById(R.id.tv_username);
-
         mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
-
         sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -112,6 +102,12 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
             }
         };
         mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
+
+        if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
+        mDevicesViewModel.setAuthToken(getAuthToken());
+        mDevicesViewModel.loadDevices();
+        mDevicesAdapter.setSelectedDeviceID(getSelectedDeviceID());
+        loadDevices();
     }
 
     @Override
@@ -197,15 +193,11 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
 
     @Override
     public void onDeviceClick(SpotifyUtils.SpotifyDevice device) {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        SharedPreferences.Editor editor = mPreferences.edit();
         editor.putString(getString(R.string.pref_device_id_key), device.id);
         editor.apply();
         Log.d(TAG, "set chosen device with id: " + device.id);
     }
 
-    public String getSelectedDeviceID() {
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
-        return sharedPreferences.getString(getString(R.string.pref_device_id_key), getString(R.string.pref_device_id_default));
-    }
+    public String getSelectedDeviceID() { return mPreferences.getString(getString(R.string.pref_device_id_key), getString(R.string.pref_device_id_default)); }
 }

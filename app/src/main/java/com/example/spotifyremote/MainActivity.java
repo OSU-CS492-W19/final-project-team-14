@@ -174,8 +174,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     @Override
     public void onAlbumClick(SpotifyUtils.SpotifyAlbum album) {
         final String DEFAULT = getString(R.string.pref_device_id_default);
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
-        String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
+        String deviceID = mPreferences.getString(getString(R.string.pref_device_id_key), getString(R.string.pref_device_id_default));
         if (!TextUtils.equals(deviceID, DEFAULT)) {
             Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
             new PlayContextOnDeviceTask().execute(album.uri, deviceID, getAuthToken());
