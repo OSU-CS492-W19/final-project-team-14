@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/tv_username"
-        android:text="@string/app_name"
+        android:text="@string/pref_user_default"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="30sp"

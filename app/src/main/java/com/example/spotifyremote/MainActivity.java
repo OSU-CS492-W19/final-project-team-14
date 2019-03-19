@@ -69,17 +69,6 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-//        sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-//            @Override
-//            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-//                mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
-//            }
-//        };
-//        mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionbar = getSupportActionBar();
@@ -112,10 +101,31 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
 
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+
+        mUserEntry = navigationView.getHeaderView(0).findViewById(R.id.tv_username);
+
+
+        mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
+
+        sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
+            }
+        };
+        mPreferences.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
+
         if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
         mAlbumViewModel.setAuthToken(getAuthToken());
         mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
         connected();
+
+
+
     }
 
     @Override
@@ -241,4 +251,5 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
                 return false;
         }
     }
+
 }
