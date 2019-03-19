@@ -82,6 +82,8 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mAlbumViewModel = ViewModelProviders.of(this).get(AlbumViewModel.class);
         mAlbumAdapter = new AlbumAdapter(this);
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         // grab ui
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -89,7 +91,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
+                mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
             }
         });
 
@@ -100,9 +102,6 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mAlbumsRV.setAdapter(mAlbumAdapter);
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
-
-
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mUserEntry = navigationView.getHeaderView(0).findViewById(R.id.tv_username);
         mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
@@ -117,12 +116,11 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
         if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
+        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
         connected();
-
-
-
     }
+
+    private int getResultsLimitPref() { return Integer.parseInt(mPreferences.getString(getString(R.string.pref_results_limit_key), getString(R.string.pref_results_limit_default))); }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,7 +131,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     @Override
     protected void onPostAuthSuccess() {
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
+        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
     }
 
     private void connected() {

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +32,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
     private AlbumViewModel mAlbumViewModel;
     private AlbumAdapter mAlbumAdapter;
 
+    private SharedPreferences mPreferences;
+
     private Toast mToast;
 
     private void toast(String msg) {
@@ -52,6 +55,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
         mAlbumsRV.setAdapter(mAlbumAdapter);
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mSearchBoxET = findViewById(R.id.et_search_box);
         Button searchButton = findViewById(R.id.btn_search);
@@ -79,7 +84,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
     }
 
     private void doSearch(String query) {
-        String url = SpotifyUtils.buildSearchURL(query);
+        int limit = Integer.parseInt(mPreferences.getString(getString(R.string.pref_results_limit_key), getString(R.string.pref_results_limit_default)));
+        String url = SpotifyUtils.buildSearchURL(query, limit);
         Log.d(TAG, "querying search URL: " + url);
 
         mAlbumViewModel.loadAlbums(url);

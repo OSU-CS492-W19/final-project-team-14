@@ -21,6 +21,8 @@ public class SpotifyUtils {
             "user-read-playback-state"
     };
 
+    private static final String SPOTIFY_LIMIT_PARAM = "limit";
+
     private static final String SPOTIFY_NEW_RELEASES_URL = "https://api.spotify.com/v1/browse/new-releases";
     private static final String SPOTIFY_DEVICE_LIST_URL = "https://api.spotify.com/v1/me/player/devices";
 
@@ -84,12 +86,18 @@ public class SpotifyUtils {
     }
 
     /* NEW RELEASES */
-    public static String getNewReleasesUrl() { return SPOTIFY_NEW_RELEASES_URL; }
+    public static String getNewReleasesUrl(int limit) {
+        return Uri.parse(SPOTIFY_NEW_RELEASES_URL).buildUpon()
+                .appendQueryParameter(SPOTIFY_LIMIT_PARAM, Integer.toString(limit))
+                .build()
+                .toString();
+    }
 
-    public static String buildSearchURL(String query) {
+    public static String buildSearchURL(String query, int limit) {
         return Uri.parse(SPOTIFY_SEARCH_BASE_URL).buildUpon()
                 .appendQueryParameter(SPOTIFY_SEARCH_QUERY_PARAM, query)
                 .appendQueryParameter(SPOTIFY_SEARCH_TYPE_PARAM, "album")
+                .appendQueryParameter(SPOTIFY_LIMIT_PARAM, Integer.toString(limit))
                 .build()
                 .toString();
     }
