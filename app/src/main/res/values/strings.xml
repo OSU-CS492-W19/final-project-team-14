@@ -18,10 +18,22 @@
     <string name="devices_title">Devices</string>
     <string name="no_devices_found_title">No devices found</string>
     <string name="no_devices_found_description">Login to Spotify on another device for it to show up here.</string>
-    <string name="pref_device_key" translatable="false">pref_device_key</string>
+
+    <string name="settings_title">Settings</string>
+
     <string name="pref_device_id_key" translatable="false">pref_device_id_key</string>
     <string name="pref_device_id_default">No device chosen</string>
     <string name="pref_device_title">Playback device</string>
+
+    <string name="pref_results_limit_title">Results limit</string>
+    <string name="pref_results_limit_default">@string/pref_results_limit_25_value</string>
+    <string name="pref_results_limit_key" translatable="false">pref_results_limit_key</string>
+    <string name="pref_results_limit_10_title" >10 results</string>
+    <string name="pref_results_limit_10_value" >10</string>
+    <string name="pref_results_limit_25_title" >25 results</string>
+    <string name="pref_results_limit_25_value" >25</string>
+    <string name="pref_results_limit_50_title" >50 results</string>
+    <string name="pref_results_limit_50_value" >50</string>
 
     <string name="playback_successful">Played to device</string>
     <string name="playback_error_premium_required">Premium required!</string>

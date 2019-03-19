@@ -82,6 +82,8 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mAlbumViewModel = ViewModelProviders.of(this).get(AlbumViewModel.class);
         mAlbumAdapter = new AlbumAdapter(this);
 
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         // grab ui
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -89,7 +91,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
+                mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
             }
         });
 
@@ -101,14 +103,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
 
-
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-
-
         mUserEntry = navigationView.getHeaderView(0).findViewById(R.id.tv_username);
-
-
         mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
 
         sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -121,12 +116,11 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
         if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
+        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
         connected();
-
-
-
     }
+
+    private int getResultsLimitPref() { return Integer.parseInt(mPreferences.getString(getString(R.string.pref_results_limit_key), getString(R.string.pref_results_limit_default))); }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,7 +131,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     @Override
     protected void onPostAuthSuccess() {
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl());
+        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
     }
 
     private void connected() {
@@ -180,8 +174,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     @Override
     public void onAlbumClick(SpotifyUtils.SpotifyAlbum album) {
         final String DEFAULT = getString(R.string.pref_device_id_default);
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
-        String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
+        String deviceID = mPreferences.getString(getString(R.string.pref_device_id_key), getString(R.string.pref_device_id_default));
         if (!TextUtils.equals(deviceID, DEFAULT)) {
             Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
             new PlayContextOnDeviceTask().execute(album.uri, deviceID, getAuthToken());
@@ -221,20 +214,8 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
                 Intent intent = new Intent(this, SearchActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_settings:
-                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(SettingsIntent);
-                return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-
-    private void setUserName(String query) {
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-//
-//        String user = preferences.getString(getString(R.string.pref_user_key), "");
     }
 
     @Override
@@ -246,6 +227,10 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
             case R.id.nav_devices:
                 Intent intent = new Intent(this, DevicesActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.nav_settings:
+                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(SettingsIntent);
                 return true;
             default:
                 return false;

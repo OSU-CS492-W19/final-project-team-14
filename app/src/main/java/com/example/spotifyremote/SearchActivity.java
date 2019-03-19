@@ -1,10 +1,9 @@
 package com.example.spotifyremote;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +30,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
     private AlbumViewModel mAlbumViewModel;
     private AlbumAdapter mAlbumAdapter;
 
+    private SharedPreferences mPreferences;
+
     private Toast mToast;
 
     private void toast(String msg) {
@@ -52,6 +53,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
         mAlbumsRV.setAdapter(mAlbumAdapter);
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mSearchBoxET = findViewById(R.id.et_search_box);
         Button searchButton = findViewById(R.id.btn_search);
@@ -79,7 +82,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
     }
 
     private void doSearch(String query) {
-        String url = SpotifyUtils.buildSearchURL(query);
+        int limit = Integer.parseInt(mPreferences.getString(getString(R.string.pref_results_limit_key), getString(R.string.pref_results_limit_default)));
+        String url = SpotifyUtils.buildSearchURL(query, limit);
         Log.d(TAG, "querying search URL: " + url);
 
         mAlbumViewModel.loadAlbums(url);
@@ -88,8 +92,7 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
     @Override
     public void onAlbumClick(SpotifyUtils.SpotifyAlbum album) {
         final String DEFAULT = getString(R.string.pref_device_id_default);
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.pref_device_key), Context.MODE_PRIVATE);
-        String deviceID = sharedPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
+        String deviceID = mPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
         if (!TextUtils.equals(deviceID, DEFAULT)) {
             Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
             new SearchActivity.PlayContextOnDeviceTask().execute(album.uri, deviceID, getAuthToken());

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_results_limit_entries">
+        <item>@string/pref_results_limit_10_title</item>
+        <item>@string/pref_results_limit_25_title</item>
+        <item>@string/pref_results_limit_50_title</item>
+    </string-array>
+    <string-array name="pref_results_limit_values">
+        <item>@string/pref_results_limit_10_value</item>
+        <item>@string/pref_results_limit_25_value</item>
+        <item>@string/pref_results_limit_50_value</item>
+    </string-array>
+</resources>
