@@ -12,20 +12,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SearchEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,8 +28,6 @@ import android.widget.Toast;
 import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 import com.google.android.material.navigation.NavigationView;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.util.ArrayList;
 
@@ -43,18 +36,9 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
-
     private SharedPreferences mPreferences;
     private AlbumViewModel mAlbumViewModel;
     private AlbumAdapter mAlbumAdapter;
-
-    private Toast mToast;
-
-    private void toast(String msg) {
-        if (mToast != null) mToast.cancel();
-        mToast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-        mToast.show();
-    }
 
     private DrawerLayout mDrawerLayout;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -91,7 +75,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
+                mAlbumViewModel.loadAlbums(SpotifyUtils.buildNewReleasesUrl(getResultsLimitPref()));
             }
         });
 
@@ -116,7 +100,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
         if (TextUtils.equals(getAuthToken(), getString(R.string.pref_auth_token_default))) authenticate();
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
+        mAlbumViewModel.loadAlbums(SpotifyUtils.buildNewReleasesUrl(getResultsLimitPref()));
         connected();
     }
 
@@ -131,7 +115,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
     @Override
     protected void onPostAuthSuccess() {
         mAlbumViewModel.setAuthToken(getAuthToken());
-        mAlbumViewModel.loadAlbums(SpotifyUtils.getNewReleasesUrl(getResultsLimitPref()));
+        mAlbumViewModel.loadAlbums(SpotifyUtils.buildNewReleasesUrl(getResultsLimitPref()));
     }
 
     private void connected() {
@@ -173,35 +157,9 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
     @Override
     public void onAlbumClick(SpotifyUtils.SpotifyAlbum album) {
-        final String DEFAULT = getString(R.string.pref_device_id_default);
-        String deviceID = mPreferences.getString(getString(R.string.pref_device_id_key), getString(R.string.pref_device_id_default));
-        if (!TextUtils.equals(deviceID, DEFAULT)) {
-            Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
-            new PlayContextOnDeviceTask().execute(album.uri, deviceID, getAuthToken());
-        }
-    }
-
-    class PlayContextOnDeviceTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            String uri = params[0];
-            String id = params[1];
-            String token = params[2];
-            String res = SpotifyUtils.playContextURIOnDevice(uri, id, token);
-            return res;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if (s != null) {
-                SpotifyUtils.SpotifyResponse response = SpotifyUtils.parseResponseJSON(s);
-                if (response != null && response.error != null) {
-                    if (response.error.status == 403) toast(getString(R.string.playback_error_premium_required));
-                }
-            } else {
-                toast(getString(R.string.playback_successful));
-            }
-        }
+        Intent intent = new Intent(this, AlbumDetailActivity.class);
+        intent.putExtra(SpotifyUtils.SPOTIFY_ALBUM_EXTRA, album);
+        startActivity(intent);
     }
 
     @Override

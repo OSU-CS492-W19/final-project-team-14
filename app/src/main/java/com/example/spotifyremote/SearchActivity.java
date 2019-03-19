@@ -1,5 +1,6 @@
 package com.example.spotifyremote;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,14 +32,6 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
     private AlbumAdapter mAlbumAdapter;
 
     private SharedPreferences mPreferences;
-
-    private Toast mToast;
-
-    private void toast(String msg) {
-        if (mToast != null) mToast.cancel();
-        mToast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-        mToast.show();
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,34 +84,8 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
 
     @Override
     public void onAlbumClick(SpotifyUtils.SpotifyAlbum album) {
-        final String DEFAULT = getString(R.string.pref_device_id_default);
-        String deviceID = mPreferences.getString(getString(R.string.pref_device_id_key), DEFAULT);
-        if (!TextUtils.equals(deviceID, DEFAULT)) {
-            Log.d(TAG, "playing \"" + album.uri + "\" to device: " + deviceID);
-            new SearchActivity.PlayContextOnDeviceTask().execute(album.uri, deviceID, getAuthToken());
-        }
-    }
-
-    class PlayContextOnDeviceTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            String uri = params[0];
-            String id = params[1];
-            String token = params[2];
-            String res = SpotifyUtils.playContextURIOnDevice(uri, id, token);
-            return res;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if (s != null) {
-                SpotifyUtils.SpotifyResponse response = SpotifyUtils.parseResponseJSON(s);
-                if (response != null && response.error != null) {
-                    if (response.error.status == 403) toast(getString(R.string.playback_error_premium_required));
-                }
-            } else {
-                toast(getString(R.string.playback_successful));
-            }
-        }
+        Intent intent = new Intent(this, AlbumDetailActivity.class);
+        intent.putExtra(SpotifyUtils.SPOTIFY_ALBUM_EXTRA, album);
+        startActivity(intent);
     }
 }

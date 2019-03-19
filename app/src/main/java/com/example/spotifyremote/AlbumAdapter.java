@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.spotifyremote.utils.ScrollingTextView;
 import com.example.spotifyremote.utils.SpotifyUtils;
 
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
     class AlbumViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ImageView mAlbumArtIV;
-        private TextView mAlbumTitleTV;
+        private ScrollingTextView mAlbumTitleTV;
         private TextView mAlbumArtistTV;
 
         public AlbumViewHolder(View itemView) {
