@@ -10,8 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.spotifyremote.data.Status;
 import com.example.spotifyremote.utils.SpotifyUtils;
 
 import java.util.ArrayList;
@@ -27,6 +30,11 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
 
     private EditText mSearchBoxET;
     private RecyclerView mAlbumsRV;
+
+    private LinearLayout mLoadingErrorLL;
+    private LinearLayout mAuthErrorLL;
+    private LinearLayout mNoResultsLL;
+    private ProgressBar mLoadingPB;
 
     private AlbumViewModel mAlbumViewModel;
     private AlbumAdapter mAlbumAdapter;
@@ -47,6 +55,11 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
         mAlbumsRV.setLayoutManager(new LinearLayoutManager(this));
         mAlbumsRV.setHasFixedSize(true);
 
+        mLoadingErrorLL = findViewById(R.id.ll_loading_error);
+        mAuthErrorLL = findViewById(R.id.ll_auth_error);
+        mNoResultsLL = findViewById(R.id.ll_no_results);
+        mLoadingPB = findViewById(R.id.pb_loading);
+
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mSearchBoxET = findViewById(R.id.et_search_box);
@@ -65,6 +78,44 @@ public class SearchActivity extends AuthenticatableActivity implements AlbumAdap
             @Override
             public void onChanged(ArrayList<SpotifyUtils.SpotifyAlbum> albums) {
                 mAlbumAdapter.updateAlbums(albums);
+            }
+        });
+
+        mAlbumViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(@Nullable Status status) {
+                if (status == Status.LOADING) {
+                    mLoadingPB.setVisibility(View.VISIBLE);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
+                    mNoResultsLL.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                } else if (status == Status.SUCCESS) {
+                    mLoadingPB.setVisibility(View.INVISIBLE);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
+                    mNoResultsLL.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.VISIBLE);
+                } else if (status == Status.EMPTY) {
+                    mLoadingPB.setVisibility(View.INVISIBLE);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
+                    mNoResultsLL.setVisibility(View.VISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                } else if (status == Status.AUTH_ERR) {
+                    authenticate();
+                    mLoadingPB.setVisibility(View.INVISIBLE);
+                    mLoadingErrorLL.setVisibility(View.INVISIBLE);
+                    mAuthErrorLL.setVisibility(View.VISIBLE);
+                    mNoResultsLL.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                } else {
+                    mLoadingPB.setVisibility(View.INVISIBLE);
+                    mLoadingErrorLL.setVisibility(View.VISIBLE);
+                    mAuthErrorLL.setVisibility(View.INVISIBLE);
+                    mNoResultsLL.setVisibility(View.INVISIBLE);
+                    mAlbumsRV.setVisibility(View.INVISIBLE);
+                }
             }
         });
     }

@@ -39,7 +39,8 @@ public class AlbumRepository implements SpotifyAsyncTask.Callback {
         if (response != null) {
             if (response.albums != null && response.albums.items != null) {
                 mAlbums.setValue(new ArrayList<>(Arrays.asList(response.albums.items)));
-                mLoadingStatus.setValue(Status.SUCCESS);
+                if (response.albums.items.length > 0) mLoadingStatus.setValue(Status.SUCCESS);
+                else mLoadingStatus.setValue(Status.EMPTY);
                 return;
             }
             else if (response.error != null && response.error.status == 401) {

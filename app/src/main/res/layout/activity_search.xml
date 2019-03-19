@@ -31,22 +31,44 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <!--<TextView-->
-            <!--android:id="@+id/tv_loading_error"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textSize="20sp"-->
-            <!--android:padding="16dp"-->
-            <!--android:visibility="invisible"-->
-            <!--android:text="@string/loading_error" />-->
+        <include layout="@layout/auth_error" android:visibility="invisible"/>
+        <include layout="@layout/loading_error" android:visibility="invisible"/>
 
-        <!--<ProgressBar-->
-            <!--android:id="@+id/pb_loading"-->
-            <!--android:layout_width="72dp"-->
-            <!--android:layout_height="72dp"-->
-            <!--android:layout_gravity="top|center_horizontal"-->
-            <!--android:layout_marginTop="32dp"-->
-            <!--android:visibility="invisible"/>-->
+        <LinearLayout
+            android:id="@+id/ll_no_results"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="invisible">
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_error_outline"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_no_results_title"
+                android:textSize="30sp"
+                android:padding="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_no_results_description"
+                android:textSize="15sp"/>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_loading"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="32dp"
+            android:visibility="invisible"/>
 
     </FrameLayout>
 

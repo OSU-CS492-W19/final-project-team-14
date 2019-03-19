@@ -41,6 +41,8 @@
     <string name="search_box_hint">Search...</string>
     <string name="search_button_text">Do Search</string>
     <string name="action_search">Search</string>
+    <string name="search_no_results_title">No results</string>
+    <string name="search_no_results_description">Doesn\'t look like we could find anything under that name.</string>
 
     <string name="action_play_locally">Play locally</string>
     <string name="action_play_remote">Send to device</string>
