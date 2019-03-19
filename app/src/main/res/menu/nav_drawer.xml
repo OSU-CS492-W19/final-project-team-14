@@ -9,4 +9,9 @@
         android:id="@+id/nav_devices"
         android:title="@string/devices_title"
         android:icon="@drawable/ic_devices"/>
+
+    <item
+        android:id="@+id/nav_settings"
+        android:title="@string/settings_title"
+        android:icon="@drawable/ic_settings"/>
 </menu>

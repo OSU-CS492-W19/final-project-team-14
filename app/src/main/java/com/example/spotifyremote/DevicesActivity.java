@@ -176,6 +176,10 @@ public class DevicesActivity extends AuthenticatableActivity implements Navigati
                 return true;
             case R.id.nav_devices:
                 return true;
+            case R.id.nav_settings:
+                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(SettingsIntent);
+                return true;
             default:
                 return false;
         }

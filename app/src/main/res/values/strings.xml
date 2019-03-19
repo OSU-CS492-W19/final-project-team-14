@@ -26,6 +26,8 @@
     <string name="playback_successful">Played to device</string>
     <string name="playback_error_premium_required">Premium required!</string>
 
+    <string name="settings_title">Settings</string>
+
     <string name="search_box_hint">Search...</string>
     <string name="search_button_text">Do Search</string>
     <string name="action_search">Search</string>

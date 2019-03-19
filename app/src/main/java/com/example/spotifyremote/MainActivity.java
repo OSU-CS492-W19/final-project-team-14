@@ -104,11 +104,7 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-
-
         mUserEntry = navigationView.getHeaderView(0).findViewById(R.id.tv_username);
-
-
         mUserEntry.setText(mPreferences.getString(getString(R.string.pref_user_key), getString(R.string.pref_user_default)));
 
         sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -221,20 +217,8 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
                 Intent intent = new Intent(this, SearchActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_settings:
-                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(SettingsIntent);
-                return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-
-    private void setUserName(String query) {
-//        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-//
-//        String user = preferences.getString(getString(R.string.pref_user_key), "");
     }
 
     @Override
@@ -246,6 +230,10 @@ public class MainActivity extends AuthenticatableActivity implements AlbumAdapte
             case R.id.nav_devices:
                 Intent intent = new Intent(this, DevicesActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.nav_settings:
+                Intent SettingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(SettingsIntent);
                 return true;
             default:
                 return false;
