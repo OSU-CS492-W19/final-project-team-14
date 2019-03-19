@@ -28,12 +28,12 @@
     <string name="pref_results_limit_title">Results limit</string>
     <string name="pref_results_limit_default">@string/pref_results_limit_25_value</string>
     <string name="pref_results_limit_key" translatable="false">pref_results_limit_key</string>
-    <string name="pref_results_limit_10_title" >10 results</string>
-    <string name="pref_results_limit_10_value" >10</string>
-    <string name="pref_results_limit_25_title" >25 results</string>
-    <string name="pref_results_limit_25_value" >25</string>
-    <string name="pref_results_limit_50_title" >50 results</string>
-    <string name="pref_results_limit_50_value" >50</string>
+    <string name="pref_results_limit_10_title">10 results</string>
+    <string name="pref_results_limit_10_value">10</string>
+    <string name="pref_results_limit_25_title">25 results</string>
+    <string name="pref_results_limit_25_value">25</string>
+    <string name="pref_results_limit_50_title">50 results</string>
+    <string name="pref_results_limit_50_value">50</string>
 
     <string name="playback_successful">Played to device</string>
     <string name="playback_error_premium_required">Premium required!</string>
@@ -41,4 +41,7 @@
     <string name="search_box_hint">Search...</string>
     <string name="search_button_text">Do Search</string>
     <string name="action_search">Search</string>
+
+    <string name="action_play_locally">Play locally</string>
+    <string name="action_play_remote">Send to device</string>
 </resources>

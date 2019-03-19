@@ -1,14 +1,13 @@
 package com.example.spotifyremote.utils;
 
+import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.io.Serializable;
 
 public class SpotifyUtils {
     private static final String TAG = SpotifyUtils.class.getSimpleName();
@@ -33,6 +32,7 @@ public class SpotifyUtils {
     private static final String SPOTIFY_SEARCH_QUERY_PARAM = "q";
     private static final String SPOTIFY_SEARCH_TYPE_PARAM = "type";
 
+    public static final String SPOTIFY_ALBUM_EXTRA = "SPOTIFY_ALBUM_EXTRA";
     public static String doAuthorizedHTTPGet(String url, String token) throws IOException {
         String[] header = {"Authorization", "Bearer " + token};
         return NetworkUtils.doHTTPGet(url, header);
@@ -40,7 +40,7 @@ public class SpotifyUtils {
 
     /* RESPONSES */
     public static class SpotifyResponse {
-        public SpotifyAlbumsItem albums;
+        public SpotifyAlbumsList albums;
         public SpotifyDevice[] devices;
         public SpotifyError error;
     }
@@ -58,11 +58,11 @@ public class SpotifyUtils {
     }
 
     /* ALBUMS */
-    public static class SpotifyAlbumsItem {
+    public static class SpotifyAlbumsList {
         public SpotifyAlbum[] items;
     }
 
-    public static class SpotifyAlbum {
+    public static class SpotifyAlbum implements Serializable {
         public String album_type;
         public SpotifyArtist[] artists;
         public String id;
@@ -72,21 +72,21 @@ public class SpotifyUtils {
         public String uri;
     }
 
-    public static class SpotifyArtist {
+    public static class SpotifyArtist implements Serializable {
         public String id;
         public String name;
         public String type;
         public String uri;
     }
 
-    public static class SpotifyImage {
+    public static class SpotifyImage implements Serializable {
         public int width;
         public int height;
         public String url;
     }
 
     /* NEW RELEASES */
-    public static String getNewReleasesUrl(int limit) {
+    public static String buildNewReleasesUrl(int limit) {
         return Uri.parse(SPOTIFY_NEW_RELEASES_URL).buildUpon()
                 .appendQueryParameter(SPOTIFY_LIMIT_PARAM, Integer.toString(limit))
                 .build()
@@ -134,6 +134,15 @@ public class SpotifyUtils {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static boolean isSpotifyInstalled(PackageManager packageManager) {
+        try {
+            return packageManager.getApplicationInfo("com.spotify.music", 0).enabled;
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
     }
 }
